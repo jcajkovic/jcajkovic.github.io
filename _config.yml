@@ -1,8 +1,8 @@
 # Site settings
 title: Jozef Cajkovic Blog
 description: 'Lover of Automation, AWS, DevOps, CI/CD, Python, Docker adn Photography. Living in Slovakia.'
-url: 'https://jcajkovic.github.io'
-enforce_ssl: jcajkovic.github.io
+url: 'https://tech.pixelsystems.sk'
+enforce_ssl: tech.pixelsystems.sk
 baseurl: ''
 # google_analytics: 'UA-72498951-1'
 
