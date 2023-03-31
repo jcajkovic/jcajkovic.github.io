@@ -11,14 +11,23 @@
     </image>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 15 Sep 2020 11:30:03 +0000</lastBuildDate><atom:link href="https://jcajkovic.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 15 Mar 2023 11:30:03 +0000</lastBuildDate><atom:link href="https://jcajkovic.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>My 1st post</title>
-      <link>https://jcajkovic.github.io/posts/post/</link>
+      <title>Options on connecting multiple VPC&#39;s in AWS</title>
+      <link>https://jcajkovic.github.io/posts/vpc-interconnections/</link>
+      <pubDate>Wed, 15 Mar 2023 11:30:03 +0000</pubDate>
+      
+      <guid>https://jcajkovic.github.io/posts/vpc-interconnections/</guid>
+      <description>Simple view on options to connect multiple VPC&amp;#39;s in AWS</description>
+    </item>
+    
+    <item>
+      <title>Lambda behind API Gateway with terraform</title>
+      <link>https://jcajkovic.github.io/posts/lambda-apigw-tfm/</link>
       <pubDate>Tue, 15 Sep 2020 11:30:03 +0000</pubDate>
       
-      <guid>https://jcajkovic.github.io/posts/post/</guid>
-      <description>Desc Text.</description>
+      <guid>https://jcajkovic.github.io/posts/lambda-apigw-tfm/</guid>
+      <description>Tutorial to create Lambda function accessible through API Gateway with terraform</description>
     </item>
     
   </channel>

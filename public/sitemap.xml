@@ -3,18 +3,30 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://jcajkovic.github.io/tags/aws/</loc>
-    <lastmod>2020-09-15T11:30:03+00:00</lastmod>
+    <lastmod>2023-03-15T11:30:03+00:00</lastmod>
   </url><url>
     <loc>https://jcajkovic.github.io/</loc>
-    <lastmod>2020-09-15T11:30:03+00:00</lastmod>
+    <lastmod>2023-03-15T11:30:03+00:00</lastmod>
   </url><url>
-    <loc>https://jcajkovic.github.io/posts/post/</loc>
-    <lastmod>2020-09-15T11:30:03+00:00</lastmod>
+    <loc>https://jcajkovic.github.io/posts/vpc-interconnections/</loc>
+    <lastmod>2023-03-15T11:30:03+00:00</lastmod>
   </url><url>
     <loc>https://jcajkovic.github.io/posts/</loc>
-    <lastmod>2020-09-15T11:30:03+00:00</lastmod>
+    <lastmod>2023-03-15T11:30:03+00:00</lastmod>
   </url><url>
     <loc>https://jcajkovic.github.io/tags/</loc>
+    <lastmod>2023-03-15T11:30:03+00:00</lastmod>
+  </url><url>
+    <loc>https://jcajkovic.github.io/tags/vpc/</loc>
+    <lastmod>2023-03-15T11:30:03+00:00</lastmod>
+  </url><url>
+    <loc>https://jcajkovic.github.io/tags/apigw/</loc>
+    <lastmod>2020-09-15T11:30:03+00:00</lastmod>
+  </url><url>
+    <loc>https://jcajkovic.github.io/tags/lambda/</loc>
+    <lastmod>2020-09-15T11:30:03+00:00</lastmod>
+  </url><url>
+    <loc>https://jcajkovic.github.io/posts/lambda-apigw-tfm/</loc>
     <lastmod>2020-09-15T11:30:03+00:00</lastmod>
   </url><url>
     <loc>https://jcajkovic.github.io/categories/</loc>
