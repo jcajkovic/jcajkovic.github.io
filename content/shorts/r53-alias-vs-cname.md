@@ -53,3 +53,49 @@ One advantage of Alias records is that they provide better high availability for
 Another advantage of Alias records is that they provide better performance. When you use a CNAME record to point to an AWS Load Balancer, the DNS resolver first resolves the CNAME to the IP address of the load balancer, and then resolves the IP address to the actual instance. This can add additional latency to your application. With an Alias record, however, Route 53 resolves the record directly to the IP address of the load balancer, which can reduce the latency and improve the performance of your application.
 
 Overall, if you are using an AWS Load Balancer to distribute traffic to your application, it's recommended to use an Alias record in Route 53 for better high availability and performance.
+
+> Example code below
+
+```
+resource "aws_route53_zone" "example_zone" {
+  name = "example.com."
+}
+
+resource "aws_lb" "example_lb" {
+  name               = "example-lb"
+  internal           = false
+  load_balancer_type = "application"
+
+  subnets         = [aws_subnet.example_subnet.id]
+  security_groups = [aws_security_group.example_security_group.id]
+}
+
+resource "aws_lb_listener" "example_listener" {
+  load_balancer_arn = aws_lb.example_lb.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "fixed-response"
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "Hello, World!"
+      status_code  = "200"
+    }
+  }
+}
+
+resource "aws_route53_record" "example_record" {
+  zone_id = aws_route53_zone.example_zone.zone_id
+  name    = "www.example.com"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.example_lb.dns_name
+    zone_id                = aws_lb.example_lb.zone_id
+    evaluate_target_health = true
+  }
+}
+```
+
+In this example, we first create a Route 53 hosted zone and an ALB in the same region. Then we create an ALB listener and a Route 53 Alias record that points to the ALB's DNS name. The evaluate_target_health parameter is set to true, which means that Route 53 will check the health of the ALB's targets before directing traffic to them.
