@@ -30,10 +30,10 @@ cover:
     caption: "<text>" # display caption under cover
     relative: false # when using page bundles set this to true
     hidden: true # only hide on current single page
-# editPost:
-#     URL: "https://github.com/<path_to_repo>/content"
-#     Text: "Suggest Changes" # edit text
-#     appendFilePath: true # to append file path to Edit link
+editPost:
+    URL: "https://github.com/jcajkovic.github.io/content"
+    Text: "Suggest Changes" # edit text
+    appendFilePath: true # to append file path to Edit link
 ---
 
 When using AWS, it is common to have multiple virtual private clouds (VPCs) set up for different applications or environments. However, it is important to ensure that these VPCs are able to communicate with each other securely and efficiently. In this post, we will explore the various networking options available in AWS for interconnecting multiple VPCs.
