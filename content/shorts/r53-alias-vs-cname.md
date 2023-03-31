@@ -3,7 +3,7 @@ title: "What's the difference between Route53 Alias and CNAME"
 date: 2023-03-31T22:05:03+00:00
 # weight: 1
 # aliases: ["/first"]
-tags: ["aws", "r53"]
+tags: ["aws", "route53"]
 author: "Jozef Cajkovic, OpenAI ChatGPT"
 # author: ["Me", "You"] # multiple authors
 showToc: true
