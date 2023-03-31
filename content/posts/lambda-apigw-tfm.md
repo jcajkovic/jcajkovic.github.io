@@ -1,6 +1,6 @@
 ---
 title: "Lambda behind API Gateway with terraform"
-date: 2020-09-15T11:30:03+00:00
+date: 2023-03-17T11:30:03+00:00
 # weight: 1
 # aliases: ["/first"]
 tags: ["aws", "lambda", "apigw"]
