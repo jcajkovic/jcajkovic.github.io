@@ -12,7 +12,7 @@ draft: false
 hidemeta: false
 comments: false
 description: "Tutorial to create Lambda function accessible through API Gateway with terraform"
-canonicalURL: "https://canonical.url/to/page"
+# canonicalURL: "https://canonical.url/to/page"
 disableHLJS: true # to disable highlightjs
 disableShare: false
 disableHLJS: false
