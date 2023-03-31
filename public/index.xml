@@ -30,14 +30,5 @@
       <description>Simple view on options to connect multiple VPC&amp;#39;s in AWS</description>
     </item>
     
-    <item>
-      <title>What&#39;s the difference between Route53 Alias and CNAME</title>
-      <link>https://jcajkovic.github.io/shorts/r53-alias-vs-cname/</link>
-      <pubDate>Wed, 15 Mar 2023 11:30:03 +0000</pubDate>
-      
-      <guid>https://jcajkovic.github.io/shorts/r53-alias-vs-cname/</guid>
-      <description>R53 Alias vs. CNAME</description>
-    </item>
-    
   </channel>
 </rss>

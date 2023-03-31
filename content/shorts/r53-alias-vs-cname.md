@@ -1,6 +1,6 @@
 ---
 title: "What's the difference between Route53 Alias and CNAME"
-date: 2023-03-15T11:30:03+00:00
+date: 2023-03-31T22:05:03+00:00
 # weight: 1
 # aliases: ["/first"]
 tags: ["aws", "r53"]
