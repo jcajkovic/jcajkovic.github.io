@@ -119,6 +119,10 @@ menu:
       name: posts
       url: /posts/
       weight: 10
+    - identifier: shorts
+      name: shorts
+      url: /shorts/
+      weight: 15      
     - identifier: categories
       name: categories
       url: /categories/
