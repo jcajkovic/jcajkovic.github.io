@@ -57,5 +57,23 @@
       <description></description>
     </item>
     
+    <item>
+      <title>book</title>
+      <link>https://jcajkovic.github.io/tags/book/</link>
+      <pubDate>Thu, 02 Mar 2023 11:55:00 +0000</pubDate>
+      
+      <guid>https://jcajkovic.github.io/tags/book/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>devops</title>
+      <link>https://jcajkovic.github.io/tags/devops/</link>
+      <pubDate>Thu, 02 Mar 2023 11:55:00 +0000</pubDate>
+      
+      <guid>https://jcajkovic.github.io/tags/devops/</guid>
+      <description></description>
+    </item>
+    
   </channel>
 </rss>

@@ -1,6 +1,6 @@
 ---
 title: "Book: The Phoenix Project"
-date: 2023-04-02T11:55:00+00:00
+date: 2023-03-02T11:55:00+00:00
 # weight: 1
 # aliases: ["/first"]
 tags: ["aws", "route53"]
@@ -11,7 +11,7 @@ TocOpen: false
 draft: false
 hidemeta: false
 comments: false
-description: "R53 Alias vs. CNAME"
+description: "Opinion on book"
 # canonicalURL: "https://canonical.url/to/page"
 disableHLJS: true # to disable highlightjs
 disableShare: false

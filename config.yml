@@ -24,7 +24,7 @@ params:
   # author: ["Me", "You"] # multiple authors
   images: ["<link or path of image for opengraph, twitter-cards>"]
   DateFormat: "January 2, 2006"
-  defaultTheme: auto # dark, light
+  defaultTheme: light # dark, light
   disableThemeToggle: false
 
   ShowReadingTime: true
@@ -69,6 +69,10 @@ params:
     buttons:
       - name: Posts
         url: /posts/
+      - name: Shorts
+        url: /shorts/
+      - name: Books
+        url: /books/
       - name: Tags
         url: tags
 
@@ -123,14 +127,18 @@ menu:
       name: shorts
       url: /shorts/
       weight: 11      
-    - books: books
+    # - identifier: reviews
+    #   name: reviews
+    #   url: /reviews/
+    #   weight: 12
+    - identifier: books
       name: books
       url: /books/
-      weight: 12
-    - identifier: categories
-      name: categories
-      url: /categories/
-      weight: 20
+      weight: 12      
+    # - identifier: categories
+    #   name: categories
+    #   url: /categories/
+    #   weight: 20
     - identifier: tags
       name: tags
       url: /tags/
