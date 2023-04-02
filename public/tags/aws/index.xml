@@ -11,7 +11,16 @@
     </image>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 17 Mar 2023 11:30:03 +0000</lastBuildDate><atom:link href="https://jcajkovic.github.io/tags/aws/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 31 Mar 2023 22:05:03 +0000</lastBuildDate><atom:link href="https://jcajkovic.github.io/tags/aws/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>What&#39;s the difference between Route53 Alias and CNAME</title>
+      <link>https://jcajkovic.github.io/shorts/r53-alias-vs-cname/</link>
+      <pubDate>Fri, 31 Mar 2023 22:05:03 +0000</pubDate>
+      
+      <guid>https://jcajkovic.github.io/shorts/r53-alias-vs-cname/</guid>
+      <description>R53 Alias vs. CNAME</description>
+    </item>
+    
     <item>
       <title>Lambda behind API Gateway with terraform</title>
       <link>https://jcajkovic.github.io/posts/lambda-apigw-tfm/</link>

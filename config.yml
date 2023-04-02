@@ -122,7 +122,11 @@ menu:
     - identifier: shorts
       name: shorts
       url: /shorts/
-      weight: 15      
+      weight: 11      
+    - books: books
+      name: books
+      url: /books/
+      weight: 12
     - identifier: categories
       name: categories
       url: /categories/

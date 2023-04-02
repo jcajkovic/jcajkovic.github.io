@@ -11,22 +11,31 @@
     </image>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 17 Mar 2023 11:30:03 +0000</lastBuildDate><atom:link href="https://jcajkovic.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 31 Mar 2023 22:05:03 +0000</lastBuildDate><atom:link href="https://jcajkovic.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>aws</title>
+      <link>https://jcajkovic.github.io/tags/aws/</link>
+      <pubDate>Fri, 31 Mar 2023 22:05:03 +0000</pubDate>
+      
+      <guid>https://jcajkovic.github.io/tags/aws/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>route53</title>
+      <link>https://jcajkovic.github.io/tags/route53/</link>
+      <pubDate>Fri, 31 Mar 2023 22:05:03 +0000</pubDate>
+      
+      <guid>https://jcajkovic.github.io/tags/route53/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>apigw</title>
       <link>https://jcajkovic.github.io/tags/apigw/</link>
       <pubDate>Fri, 17 Mar 2023 11:30:03 +0000</pubDate>
       
       <guid>https://jcajkovic.github.io/tags/apigw/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>aws</title>
-      <link>https://jcajkovic.github.io/tags/aws/</link>
-      <pubDate>Fri, 17 Mar 2023 11:30:03 +0000</pubDate>
-      
-      <guid>https://jcajkovic.github.io/tags/aws/</guid>
       <description></description>
     </item>
     
