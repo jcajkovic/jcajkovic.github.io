@@ -31,6 +31,15 @@
     </item>
     
     <item>
+      <title>LB security policy report</title>
+      <link>https://jcajkovic.github.io/posts/alb-security-policies-report/</link>
+      <pubDate>Fri, 17 Mar 2023 11:30:03 +0000</pubDate>
+      
+      <guid>https://jcajkovic.github.io/posts/alb-security-policies-report/</guid>
+      <description>Tutorial to create report of security policies configuration of LoadBalancers in AWS using https://github.com/pixel-systems/alb-security-policies-report</description>
+    </item>
+    
+    <item>
       <title>Options on connecting multiple VPC&#39;s in AWS</title>
       <link>https://jcajkovic.github.io/posts/vpc-interconnections/</link>
       <pubDate>Wed, 15 Mar 2023 11:30:03 +0000</pubDate>
