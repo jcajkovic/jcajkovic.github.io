@@ -152,10 +152,7 @@ Here's a simplified Terraform configuration for deploying Telegraf on ECS with P
 
 terraform locals (locals.tf)
 
-```hcl
-
-### LOCALS
-
+```tf
 locals {
   container_registry = "${aws_account_id}.dkr.ecr.eu-west-1.amazonaws.com/monitoring/telegraf-daemon"
   telegraf_image = "${local.container_registry}:${var.telegraf_image_version}"
@@ -164,16 +161,14 @@ locals {
 
 terraform data (data.tf)
 
-```hcl
+```tf
 data "aws_vpc" "selected" {
   id = var.vpc_id
 }
 ```
 terraform variables (variables.tf)
 
-```hcl
-### VARIABLES
-
+```terraform
 variable "aws_region" { default = "eu-west-1" }
 
 variable "stage" {
@@ -249,9 +244,7 @@ variable "service_sg_rules" {
 
 ECS resources (_ecs.tf)
 
-```hcl
-### ECS
-
+```tf
 resource "aws_cloudwatch_log_group" "telegraf-daemon-logroup" {
   name              = "${var.stage}-${var.service}-lg"
   retention_in_days = 7
@@ -360,7 +353,7 @@ resource "aws_ecs_service" "telegraf-daemon-service" {
 
 IAM resources (_iam.tf)
 
-```hcl
+```terraform
 
 resource "aws_iam_role" "telegraf-daemon-execution-role" {
   assume_role_policy = jsonencode({
