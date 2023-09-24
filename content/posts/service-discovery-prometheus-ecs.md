@@ -71,39 +71,333 @@ Here's a simplified example of a task definition in JSON format:
 ```json
 {
   "family": "prometheus",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "256",
+  "memory": "512",
   "containerDefinitions": [
     {
       "name": "prometheus",
       "image": "prom/prometheus",
+      "cpu": 0,
       "portMappings": [
         {
           "containerPort": 9090,
           "hostPort": 9090
+        }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "config",
+          "containerPath": "/output",
+          "readOnly": false
         }
       ]
     },
     {
       "name": "prometheus-ecs-discovery",
       "image": "tkgregory/prometheus-ecs-discovery",
+      "cpu": 0,
       "portMappings": [],
-      "essential": false
+      "essential": false,
+      "mountPoints": [
+        {
+          "sourceVolume": "config",
+          "containerPath": "/output",
+          "readOnly": false
+        }
+      ]
     }
-  ]
+  ],
+  "volumes": [
+    {
+      "name": "config",
+      "host": {}
+    }
+  ],
+  "networkMode": "awsvpc"
 }
 ```
 
 In this example, the `prometheus` container runs the Prometheus server, and the `prometheus-ecs-discovery` container is the sidecar.
+
+Here is an example terraform code:
+
+```hcl
+
+### DATA Resources
+
+data "aws_vpc" "selected" {
+  id = var.vpc_id
+}
+
+data "aws_region" "current" {}
+
+### IAM Resources
+
+data "aws_iam_policy_document" "prometheus_iam_policy_document" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["ecs-tasks.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "PrometheusExecutionRole" {
+  name                = "prometheus-execution-role"
+  assume_role_policy  = data.aws_iam_policy_document.prometheus_iam_policy_document.json
+  managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"]
+}
+
+#tfsec:ignore:aws-iam-no-policy-wildcards
+resource "aws_iam_role" "PrometheusRole" {
+  name                = "prometheus-role"
+  assume_role_policy  = data.aws_iam_policy_document.prometheus_iam_policy_document.json
+  managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceEventsRole"]
+
+  inline_policy {
+    name = "prometheus-policy"
+
+    policy = jsonencode({
+      Version = "2012-10-17",
+      Statement = [
+        {
+          Action = [
+            "ecs:ListClusters",
+            "ecs:ListTasks",
+            "ecs:DescribeTask",
+            "ecs:DescribeContainerInstances",
+            "ecs:DescribeTasks",
+            "ecs:DescribeTaskDefinition",
+            "ec2:DescribeInstances",
+            "ec2:DescribeAvailabilityZones"
+          ],
+          Effect   = "Allow",
+          Resource = "*",
+        }
+      ]
+    })
+  }
+
+  inline_policy {
+    name = "cloudwatch"
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action = [
+            "logs:DescribeLogGroups",
+            "logs:CreateLogStream",
+            "logs:DescribeLogStreams",
+            "logs:PutLogEvents"
+          ]
+          Effect   = "Allow"
+          Resource = "*"
+        },
+      ]
+    })
+  }
+
+}
+
+### ECS Resources
+
+resource "aws_ecs_task_definition" "PrometheusTaskDefinition" {
+  family                   = "prometheus-for-ecs"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+
+  execution_role_arn = aws_iam_role.PrometheusExecutionRole.arn
+  task_role_arn      = aws_iam_role.PrometheusRole.arn
+
+  cpu    = 256
+  memory = 512
+
+  volume {
+    name = "config"
+  }
+
+  container_definitions = jsonencode([
+    {
+      name = "prometheus-for-ecs"
+      image = "tkgregory/prometheus-with-remote-configuration:latest"
+
+      dockerLabels = {
+        "PROMETHEUS_EXPORTER_PORT" : "9090"
+      }
+
+      port_mappings = [
+        {
+          containerPort = 9090
+        }
+      ]
+
+      mountPoints = [
+        {
+          "sourceVolume" : "config",
+          "containerPath" : "/output",
+          "readOnly" : false
+        }
+      ]
+
+      logConfiguration = {
+        logDriver : "awslogs",
+
+        options : {
+          awslogs-group : aws_cloudwatch_log_group.PrometheusLogGroup.name
+          awslogs-region : data.aws_region.current.name
+          awslogs-stream-prefix : "prometheus-ecs-discovery"
+          mode : "non-blocking"
+        }
+      }
+    },
+    {
+      name  = "prometheus-ecs-discovery"
+      image = "tkgregory/prometheus-ecs-discovery:latest"
+
+      command = ["-config.write-to=/output/ecs_file_sd.yml"]
+
+      environment = [
+        {
+          name  = "AWS_REGION"
+          value = data.aws_region.current.name
+        },
+      ]
+
+      mountPoints = [
+        {
+          "sourceVolume" : "config",
+          "containerPath" : "/output",
+          "readOnly" : false
+        }
+      ]
+
+      logConfiguration = {
+        logDriver : "awslogs",
+
+        options : {
+          awslogs-group : aws_cloudwatch_log_group.PrometheusLogGroup.name
+          awslogs-region : data.aws_region.current.name
+          awslogs-stream-prefix : "prometheus-ecs-discovery"
+          mode : "non-blocking"
+        }
+      }
+    },
+  ])
+}
+
+resource "aws_ecs_service" "PrometheusService" {
+  name            = "prometheus-service"
+  cluster         = var.cluster_name
+  task_definition = aws_ecs_task_definition.PrometheusTaskDefinition.arn
+  launch_type     = "FARGATE"
+  desired_count   = 1
+
+  network_configuration {
+    # subnets = [aws_subnet.PublicSubnet.id]
+    subnets          = var.subnets
+    security_groups  = [aws_security_group.PrometheusSecurityGroup.id]
+    assign_public_ip = true
+  }
+}
+
+#tfsec:ignore:aws-ec2-no-public-ingress-sgr
+#tfsec:ignore:aws-ec2-no-public-egress-sgr
+resource "aws_security_group" "PrometheusSecurityGroup" {
+  name        = "PrometheusSecurityGroup"
+  description = "Security group for Prometheus"
+  vpc_id      = var.vpc_id
+
+}
+
+#tfsec:ignore:aws-ec2-no-public-ingress-sgr
+resource "aws_security_group_rule" "prometheus_port_ingress_rule" {
+  type              = "ingress"
+  from_port         = 9090
+  to_port           = 9090
+  protocol          = "TCP"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.PrometheusSecurityGroup.id
+  description       = "Allow inbound traffic on 9090 port from public internet"
+  # cidr_blocks       = [data.aws_vpc.selected.cidr_block]
+}
+
+resource "aws_security_group_rule" "all_ports_to_vpc_sg_egress_rule" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "tcp"
+  cidr_blocks       = [data.aws_vpc.selected.cidr_block]
+  description       = "Allow outbound traffic on all ports in VPC"
+  security_group_id = aws_security_group.PrometheusSecurityGroup.id
+}
+
+#tfsec:ignore:aws-ec2-no-public-egress-sgr
+resource "aws_security_group_rule" "https_to_public_sg_egress_rule" {
+  type              = "egress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  description       = "Allow HTTPS outbound traffic to public internet"
+  security_group_id = aws_security_group.PrometheusSecurityGroup.id
+}
+
+#tfsec:ignore:aws-cloudwatch-log-group-customer-key
+resource "aws_cloudwatch_log_group" "PrometheusLogGroup" {
+  name              = "prometheus"
+  retention_in_days = 7
+}
+
+### Variables
+
+variable "cluster_name" {
+  type = string
+  description = "(Mandatory) Value of cluster name where prometheus will be deployed"
+}
+
+variable "grafana_cloud_url" {
+  type = string
+  description = "(Mandatory) Value of grafana cloud url where prometheus will send metrics"
+}
+
+variable "prometheus_token" {
+  type = string
+  description = "(Mandatory) Value of prometheus token (for grafana cloud)"
+}
+
+variable "prometheus_user" {
+  type = string
+  description = "(Mandatory) Value of prometheus user (for grafana cloud)"
+}
+  
+variable "subnets" {
+  type = list(string)
+}
+  
+variable "vpc_id" {
+  type = string
+}
+
+```
 
 ### 2. Configure Prometheus
 
 Configure Prometheus to use the tkgregory/prometheus-ecs-discovery service discovery mechanism. You can do this in your Prometheus configuration file by adding a job with the ECS service discovery configuration:
 
 ```yaml
+global:
+  scrape_interval: 1m
+
 scrape_configs:
-  - job_name: 'ecs-service-discovery'
-    ecs_service_discovery:
-      cluster: 'your-ecs-cluster-name'
-      port: 9090  # Port where Prometheus-ecs-discovery is running
+  - job_name: 'ecs'
+    file_sd_configs:
+      - files:
+          - /output/ecs_file_sd.yml
+
 ```
 
 ### 3. Deploy to ECS
