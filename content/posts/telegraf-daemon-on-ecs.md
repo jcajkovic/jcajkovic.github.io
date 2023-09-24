@@ -35,6 +35,8 @@ editPost:
     Text: "Suggest Changes" # edit text
     appendFilePath: true # to append file path to Edit link
 ---
+
+
 # Deploying Telegraf Agent in a Docker Container on AWS ECS as a Daemon Service with Prometheus Integration
 
 In this blog post, we will explore how to deploy a Telegraf agent in a Docker container on AWS Elastic Container Service (ECS) as a Daemon service. Additionally, we will configure Telegraf to collect metrics and expose them using the Prometheus client output plugin. This setup will allow you to easily collect and scrape Telegraf metrics for monitoring and alerting purposes.
