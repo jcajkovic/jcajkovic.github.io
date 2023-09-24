@@ -25,7 +25,7 @@ ShowWordCount: true
 ShowRssButtonInSectionTermList: true
 UseHugoToc: true
 cover:
-    image: "https://www.vectorlogo.zone/logos/prometheusio/prometheusio-ar21.svg" # image path/url
+    image: "https://avatars.githubusercontent.com/in/94907?v=4" # image path/url
     alt: "<alt text>" # alt text
     caption: "<text>" # display caption under cover
     relative: false # when using page bundles set this to true
