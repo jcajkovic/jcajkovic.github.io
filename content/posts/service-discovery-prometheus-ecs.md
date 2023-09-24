@@ -1,5 +1,5 @@
 ---
-title: "Lambda behind API Gateway with terraform"
+title: "How to service discovery with Prometheus on AWS ECS"
 date: 2023-09-24T11:30:03+00:00
 # weight: 1
 # aliases: ["/first"]
@@ -11,7 +11,7 @@ TocOpen: false
 draft: false
 hidemeta: false
 comments: false
-description: "How to service discovery with Promehteus on AWS ECS"
+description: "How to service discovery with Prometheus on AWS ECS"
 # canonicalURL: "https://canonical.url/to/page"
 disableHLJS: true # to disable highlightjs
 disableShare: false
