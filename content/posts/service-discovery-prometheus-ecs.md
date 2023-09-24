@@ -38,7 +38,7 @@ editPost:
 
 # How to service discovery with promehteus on AWS ECS
 
-Service discovery is a critical component of modern containerized applications, ensuring that your monitoring and observability tools can automatically discover and track the various services and instances in your infrastructure. Amazon Elastic Container Service (ECS) is a popular container orchestration service that simplifies deploying and managing containers. When running Prometheus in an ECS cluster, it's essential to have a robust service discovery mechanism in place. In this blog post, we'll explore how to set up service discovery for Amazon ECS with Prometheus running in a Fargate container using the tkgregory/prometheus-ecs-discovery sidecar.
+Service discovery is a critical component of modern containerized applications, ensuring that your monitoring and observability tools can automatically discover and track the various services and instances in your infrastructure. Amazon Elastic Container Service (ECS) is a popular container orchestration service that simplifies deploying and managing containers. When running Prometheus in an ECS cluster, it's essential to have a robust service discovery mechanism in place. In this blog post, we'll explore how to set up service discovery for Amazon ECS with Prometheus running in a Fargate container using the jcajkovic/prometheus-ecs-discovery sidecar.
 
 ## Understanding Service Discovery
 
@@ -48,23 +48,23 @@ Service discovery allows monitoring tools like Prometheus to dynamically discove
 
 Prometheus is a popular open-source monitoring and alerting toolkit designed for reliability and scalability. While it excels at collecting and querying metrics, setting up Prometheus to monitor services within an Amazon ECS cluster can be challenging due to the dynamic nature of ECS tasks. This is where service discovery solutions come into play.
 
-## Enter tkgregory/prometheus-ecs-discovery
+## Enter pixel-systems/prometheus-ecs-discovery
 
-[tkgregory/prometheus-ecs-discovery](https://github.com/tkgregory/prometheus-ecs-discovery) is a Prometheus service discovery plugin specifically built for Amazon ECS. This tool makes it easier to discover and scrape metrics from ECS tasks without the need for manual configuration updates each time a task starts or stops.
+[pixel-systems/prometheus-ecs-discovery](https://github.com/pixel-systems/prometheus-ecs-discovery) is a Prometheus service discovery plugin specifically built for Amazon ECS. This tool makes it easier to discover and scrape metrics from ECS tasks without the need for manual configuration updates each time a task starts or stops.
 
-Here's how tkgregory/prometheus-ecs-discovery works:
+Here's how pixel-systems/prometheus-ecs-discovery works:
 
-1. **ECS Service Discovery**: ECS itself provides service discovery through DNS for the tasks in your cluster. Each task gets a DNS entry in the form of `<task-name>.<service-name>.<task-id>.<region>.ecs.amazonaws.com`. tkgregory/prometheus-ecs-discovery leverages this feature to discover tasks.
+1. **ECS Service Discovery**: ECS itself provides service discovery through DNS for the tasks in your cluster. Each task gets a DNS entry in the form of `<task-name>.<service-name>.<task-id>.<region>.ecs.amazonaws.com`. pixel-systems/prometheus-ecs-discovery leverages this feature to discover tasks.
 
-2. **Sidecar Container**: To use tkgregory/prometheus-ecs-discovery, you deploy it as a sidecar container alongside your Prometheus container in the same task definition. This sidecar queries the ECS metadata service to discover active tasks and exports them to Prometheus in a format Prometheus understands.
+2. **Sidecar Container**: To use pixel-systems/prometheus-ecs-discovery, you deploy it as a sidecar container alongside your Prometheus container in the same task definition. This sidecar queries the ECS metadata service to discover active tasks and exports them to Prometheus in a format Prometheus understands.
 
-## Setting Up Prometheus with tkgregory/prometheus-ecs-discovery
+## Setting Up Prometheus with [pixel-systems/prometheus-ecs-discovery](https://github.com/pixel-systems/prometheus-ecs-discovery)
 
-Now, let's walk through the steps to set up Prometheus with tkgregory/prometheus-ecs-discovery for service discovery in Amazon ECS:
+Now, let's walk through the steps to set up Prometheus with pixel-systems/prometheus-ecs-discovery for service discovery in Amazon ECS:
 
 ### 1. Create an ECS Task Definition
 
-First, you need to create an ECS task definition that includes both your Prometheus container and the tkgregory/prometheus-ecs-discovery sidecar container.
+First, you need to create an ECS task definition that includes both your Prometheus container and the jcajkovic/prometheus-ecs-discovery sidecar container.
 
 Here's a simplified example of a task definition in JSON format:
 
@@ -79,7 +79,7 @@ Here's a simplified example of a task definition in JSON format:
   "containerDefinitions": [
     {
       "name": "prometheus",
-      "image": "prom/prometheus",
+      "image": "jcajkovic/prometheus-remote-config",
       "cpu": 0,
       "portMappings": [
         {
@@ -97,7 +97,7 @@ Here's a simplified example of a task definition in JSON format:
     },
     {
       "name": "prometheus-ecs-discovery",
-      "image": "tkgregory/prometheus-ecs-discovery",
+      "image": "jcajkovic/prometheus-ecs-discovery",
       "cpu": 0,
       "portMappings": [],
       "essential": false,
@@ -223,7 +223,7 @@ resource "aws_ecs_task_definition" "PrometheusTaskDefinition" {
   container_definitions = jsonencode([
     {
       name = "prometheus-for-ecs"
-      image = "tkgregory/prometheus-with-remote-configuration:latest"
+      image = jcajkovic/prometheus-remote-config:latest"
 
       dockerLabels = {
         "PROMETHEUS_EXPORTER_PORT" : "9090"
@@ -256,7 +256,7 @@ resource "aws_ecs_task_definition" "PrometheusTaskDefinition" {
     },
     {
       name  = "prometheus-ecs-discovery"
-      image = "tkgregory/prometheus-ecs-discovery:latest"
+      image = "jcajkovic/prometheus-ecs-discovery:latest"
 
       command = ["-config.write-to=/output/ecs_file_sd.yml"]
 
@@ -386,7 +386,7 @@ variable "vpc_id" {
 
 ### 2. Configure Prometheus
 
-Configure Prometheus to use the tkgregory/prometheus-ecs-discovery service discovery mechanism. You can do this in your Prometheus configuration file by adding a job with the ECS service discovery configuration:
+Configure Prometheus to use the pixel-systems/prometheus-ecs-discovery service discovery mechanism. You can do this in your Prometheus configuration file by adding a job with the ECS service discovery configuration:
 
 ```yaml
 global:
@@ -402,7 +402,7 @@ scrape_configs:
 
 ### 3. Deploy to ECS
 
-Deploy your task definition to an ECS cluster as a service, ensuring that both the Prometheus and tkgregory/prometheus-ecs-discovery containers run together.
+Deploy your task definition to an ECS cluster as a service, ensuring that both the Prometheus and pixel-systems/prometheus-ecs-discovery containers run together.
 
 ### 4. Verify Service Discovery
 
@@ -410,4 +410,15 @@ Once your ECS service is up and running, Prometheus should automatically discove
 
 ## Conclusion
 
-Service discovery is essential for monitoring containerized applications running in Amazon ECS. Using tkgregory/prometheus-ecs-discovery as a sidecar container alongside Prometheus simplifies the process of discovering and scraping metrics from ECS tasks. With this setup, your monitoring solution can adapt to the dynamic nature of ECS, ensuring that you capture all the relevant metrics for your containerized services.
+Service discovery is essential for monitoring containerized applications running in Amazon ECS. Using pixel-systems/prometheus-ecs-discovery as a sidecar container alongside Prometheus simplifies the process of discovering and scraping metrics from ECS tasks. With this setup, your monitoring solution can adapt to the dynamic nature of ECS, ensuring that you capture all the relevant metrics for your containerized services.
+
+## Disclaimer
+
+I've used the concept from https://tomgregory.com/prometheus-service-discovery-for-aws-ecs/ (currently non-existent), repositories and containers used in mentioned blog post still exists, however I do not know till when. I think this architecture and use case is important to keep on internet with working code and containers for community. That is why I did not forked repositories but created new ones.
+
+Original code and repository links:
+- https://github.com/tkgregory/prometheus-with-remote-configuration
+- https://hub.docker.com/r/tkgregory/prometheus-with-remote-configuration
+- https://github.com/tkgregory/prometheus-ecs-discovery-docker
+- https://hub.docker.com/r/tkgregory/prometheus-ecs-discovery
+- https://github.com/teralytics/prometheus-ecs-discovery (this is original code for prometheus-ecs-discovery)
