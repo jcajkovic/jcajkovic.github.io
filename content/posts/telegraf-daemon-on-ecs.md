@@ -150,38 +150,395 @@ Now, let's deploy Telegraf as a Daemon service on AWS ECS, making it accessible 
 
 Here's a simplified Terraform configuration for deploying Telegraf on ECS with Prometheus integration. Save it in a file named `ecs.tf`.
 
+terraform locals (locals.tf)
+
 ```hcl
-provider "aws" {
-  region = "us-east-1"  # Change this to your desired region
+
+### LOCALS
+
+locals {
+  container_registry = "${aws_account_id}.dkr.ecr.eu-west-1.amazonaws.com/monitoring/telegraf-daemon"
+  telegraf_image = "${local.container_registry}:${var.telegraf_image_version}"
+}
+```
+
+terraform data (data.tf)
+
+```hcl
+data "aws_vpc" "selected" {
+  id = var.vpc_id
+}
+```
+terraform variables (variables.tf)
+
+```hcl
+### VARIABLES
+
+variable "aws_region" { default = "eu-west-1" }
+
+variable "stage" {
+  type        = string
+  description = "Stage variable"
 }
 
-resource "aws_ecs_cluster" "telegraf_cluster" {
-  name = "telegraf-cluster"
+variable "service" {
+  type        = string
+  description = "Name of the service"
 }
 
-resource "aws_ecs_task_definition" "telegraf_task" {
-  family                   = "telegraf-task"
-  network_mode             = "awsvpc"
+variable "cluster_name" {
+  type        = string
+  description = "Name of the ECS cluster"
+}
 
-  # Specify the Docker image you built earlier
-  container_definitions = <<EOF
-[
-  {
-    "name": "telegraf-container",
-    "image": "my-telegraf:latest",
-    "essential": true
+variable "vpc_id" {
+  type        = string
+  description = "VPC ID"
+}
+
+variable "subnets" {
+  type        = list(string)
+  description = "List of subnets"
+}
+
+variable "telegraf_image_version" {
+  type        = string
+  description = "AWS ECR repository where the image is stored with the proper tag"
+  default = "latest"
+}
+
+variable "region" {
+  type        = string
+  description = "Default region"
+  default     = "eu-west-1"
+}
+
+variable "container_cpu" {
+  type        = number
+  description = "Value for the container cpu configuration"
+  default     = 256
+}
+
+variable "container_mem" {
+  type        = number
+  description = "Value for the container memory configuration"
+  default     = 256
+}
+
+variable "status_port" {
+  type        = number
+  description = "Port number for the ecs service task health check"
+  default     = 9273
+}
+
+variable "desired_count" {
+  type        = number
+  description = "Desired count for the ecs service"
+  default     = 1
+}
+variable "service_sg_rules" {
+  default = {
+    egress = {
+      "r01" = { from_port : 443, to_port : 443, protocol : "TCP", cidr_blocks : ["0.0.0.0/0"], description : "Allow connection to aws services" }
+    }
   }
-]
-EOF
 }
 
-resource "aws_ecs_service" "telegraf_service" {
-  name            = "telegraf-service"
-  cluster         = aws_ecs_cluster.telegraf_cluster.id
-  task_definition = aws_ecs_task_definition.telegraf_task.arn
-  launch_type     = "EC2"
-  desired_count   = 1  # Adjust as needed
+
+```
+
+ECS resources (_ecs.tf)
+
+```hcl
+### ECS
+
+resource "aws_cloudwatch_log_group" "telegraf-daemon-logroup" {
+  name              = "${var.stage}-${var.service}-lg"
+  retention_in_days = 7
+  tags              = local.tags
 }
+
+resource "aws_ecs_task_definition" "telegraf-daemon-ecs-task" {
+  depends_on         = [aws_iam_role.telegraf-daemon-ecs-role]
+  family             = "${var.stage}-${var.service}-task"
+  task_role_arn      = aws_iam_role.telegraf-daemon-ecs-role.arn
+  execution_role_arn = aws_iam_role.telegraf-daemon-execution-role.arn
+  network_mode = "awsvpc"
+  volume {
+    name = "root"
+    host_path = "/"
+  }
+  volume {
+    name = "var_run"
+    host_path = "/var/run"
+  }
+  volume {
+    name = "sys"
+    host_path = "/sys"
+  }
+  volume {
+    name = "var_lib_docker"
+    host_path = "/var/lib/docker/"
+  }
+  container_definitions = jsonencode([
+    {
+      name      = "${var.stage}-${var.service}"
+      image     = local.telegraf_image
+      cpu       = var.container_cpu
+      memory    = var.container_mem
+      essential = true
+      dockerLabels = {
+        "PROMETHEUS_EXPORTER_PORT" : "9273"
+      }
+      portMappings = [
+        {
+          containerPort = 9273
+          protocol      = "tcp"
+        }
+      ]
+      environment = [
+        { "name" : "HOST_ETC", "value" : "/rootfs/etc" },
+        { "name" : "HOST_PROC", "value" : "/rootfs/proc" },
+        { "name" : "HOST_SYS", "value" : "/rootfs/sys" },
+        { "name" : "HOST_VAR", "value" : "/rootfs/var" },
+        { "name" : "HOST_RUN", "value" : "/rootfs/run" },
+        { "name" : "HOST_MOUNT_PREFIX", "value" : "/rootfs" }
+      ]
+      mountPoints = [
+        {
+          "sourceVolume" : "root",
+          "containerPath" : "/rootfs",
+          "readOnly" : true
+        },
+        {
+          "sourceVolume" : "var_run",
+          "containerPath" : "/var/run",
+          "readOnly" : false
+        },
+        {
+          "sourceVolume" : "sys",
+          "containerPath" : "/sys",
+          "readOnly" : true
+        },
+        {
+          "sourceVolume" : "var_lib_docker",
+          "containerPath" : "/var/lib/docker",
+          "readOnly" : true
+        }
+      ]
+
+      logConfiguration = {
+        logDriver : "awslogs",
+        options : {
+          awslogs-group : aws_cloudwatch_log_group.telegraf-daemon-logroup.name
+          awslogs-region : var.region
+          awslogs-stream-prefix : var.service
+          mode : "non-blocking"
+        }
+      }
+    }
+  ])
+}
+
+resource "aws_ecs_service" "telegraf-daemon-service" {
+  name            = "${var.stage}-${var.service}-service"
+  cluster         = var.cluster_name
+  task_definition = aws_ecs_task_definition.telegraf-daemon-ecs-task.arn
+  # desired_count          = var.desired_count
+  enable_execute_command = true
+  scheduling_strategy    = "DAEMON"
+  launch_type            = "EC2"
+  network_configuration {
+    assign_public_ip = false
+    security_groups  = [aws_security_group.telegraf-daemon-sg.id]
+    subnets          = var.subnets
+  }
+  tags = local.tags
+}
+
+```
+
+IAM resources (_iam.tf)
+
+```hcl
+
+resource "aws_iam_role" "telegraf-daemon-execution-role" {
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      },
+    ]
+  })
+
+  tags = local.tags
+}
+
+resource "aws_iam_role" "telegraf-daemon-ecs-role" {
+  name = "${var.stage}-${var.service}-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+  inline_policy {
+    name = "ecr"
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action = [
+            "ecr:ListImages",
+            "ecr:GetDownloadUrlForLayer",
+            "ecr:BatchGetImage",
+            "ecr:BatchCheckLayerAvailability",
+            "ecr:ListImages"
+          ]
+          Effect   = "Allow"
+          Resource = "arn:aws:ecr:eu-west-1:522044537874:dkr.ecr/monitoring/telegraf-agent:*"
+        },
+      ]
+    })
+  }
+  
+  
+  inline_policy {
+    name = "cloudwatch"
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action = [
+            "cloudwatch:PutMetricData",
+            "cloudwatch:ListMetrics",
+            "cloudwatch:GetMetricData",
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents",
+            "logs:DescribeLogStreams"
+          ]
+          Effect   = "Allow"
+          Resource = "*"
+        }
+      ]
+    })
+  }
+  
+  inline_policy {
+    name = "autoscaling-ecs-service"
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action = [
+            "application-autoscaling:*",
+            "ecs:DescribeServices",
+            "ecs:UpdateService",
+            "iam:CreateServiceLinkedRole"
+          ]
+          Effect   = "Allow"
+          Resource = "*"
+        }
+      ]
+    })
+  }
+
+  inline_policy {
+    name = "ecs_list_describe"
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action = [
+            "ecs:ListServices",
+            "ecs:DescribeServices",
+            "ecs:DescribeClusters",
+            "ecs:ListClusters",
+          ]
+          Effect   = "Allow"
+          Resource = "*"
+        }
+      ]
+    })
+  }
+  inline_policy {
+    name = "entrypoint-policy"
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action = [
+            "ec2:DescribeInstances",
+            "iam:ListAccountAliases",
+          ]
+          Effect   = "Allow"
+          Resource = "*"
+        }
+      ]
+    })
+  }
+  tags = local.tags
+}
+
+resource "aws_iam_role_policy_attachment" "ecs-task-execution-role-policy-attachment" {
+  role       = aws_iam_role.telegraf-daemon-execution-role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+
+```
+
+network resources (_network.tf)
+
+```hcl
+resource "aws_security_group" "telegraf-daemon-sg" {
+  name        = "${var.stage}-${var.service}-sg"
+  description = "Security group for telegraf VPC probe"
+  vpc_id      = data.aws_vpc.selected.id
+  tags = merge(
+    local.tags,
+    {
+      Name = "${var.stage}-${var.service}-sg"
+    },
+  )
+}
+
+resource "aws_security_group_rule" "service_sg_ingress_rules" {
+  for_each = var.service_sg_rules.egress
+
+  type              = "egress"
+  from_port         = each.value.from_port
+  to_port           = each.value.to_port
+  protocol          = each.value.protocol
+  cidr_blocks       = each.value.cidr_blocks
+  description       = each.value.description
+  security_group_id = aws_security_group.telegraf-daemon-sg.id
+}
+
+
+resource "aws_security_group_rule" "all-ports-in" {
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "TCP"
+  cidr_blocks       = [data.aws_vpc.selected.cidr_block]
+  security_group_id = aws_security_group.telegraf-daemon-sg.id
+  description       = "Allow connection on all TCP ports from the VPC"
+}
+
 ```
 
 Run the following commands to initialize and apply the Terraform configuration:
