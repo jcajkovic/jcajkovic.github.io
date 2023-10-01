@@ -1,5 +1,5 @@
 ---
-title: "Kanban and how I like to organize in Jira"
+title: "Kanban and how I like to organize work in Jira"
 date: 2023-10-01T11:30:03+00:00
 # weight: 1
 # aliases: ["/first"]
