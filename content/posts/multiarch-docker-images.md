@@ -1,11 +1,10 @@
 ---
 title: "Creating Multi-Architectural Docker Images for AWS ECR"
-date: 2023-03-17T11:30:03+00:00
-# weight: 1
+date: 2023-10-25T11:15:00+00:00
+weight: 1
 # aliases: ["/first"]
 tags: ["aws", "docker", "multiarchitecture"]
 author: "Jozef Cajkovic, OpenAI ChatGPT"
-# author: ["Me", "You"] # multiple authors
 showToc: true
 TocOpen: false
 draft: false
