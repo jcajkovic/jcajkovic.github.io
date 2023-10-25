@@ -1,6 +1,6 @@
 ---
 title: "Creating Multi-Architectural Docker Images for AWS ECR"
-date: 2023-10-25T11:15:00+00:00
+date: 2023-10-25T09:15:00+00:00
 # weight: 1
 # aliases: ["/first"]
 tags: ["aws", "docker", "multiarchitecture"]
