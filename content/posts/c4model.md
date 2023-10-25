@@ -1,6 +1,6 @@
 ---
 title: "Understanding the C4 Model: A Comprehensive Guide"
-date: 2023-10-25T018:15:00+00:00
+date: 2023-10-25T18:15:00+00:00
 # weight: 1
 # aliases: ["/first"]
 tags: ["aws", "c4", "architecture", "software engineering"]
