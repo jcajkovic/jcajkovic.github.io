@@ -1,6 +1,6 @@
 ---
 title: "How to KMS Encrypt/Decrypt with aws-cli"
-date: 2023-10-28T10:05:03+00:00
+date: 2023-10-26T09:05:03+00:00
 # weight: 1
 # aliases: ["/first"]
 tags: ["aws", "kms", "aws-cli"]
