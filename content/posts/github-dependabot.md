@@ -1,6 +1,6 @@
 ---
 title: "Harnessing the Power of Dependabot and GitHub Actions for Smoother Dependency Management"
-date: 2023-10-29T06:20:00+00:00
+date: 2023-10-29T04:20:00+00:00
 # weight: 1
 # aliases: ["/first"]
 tags: ["github", "dependabot", "github actions"]
