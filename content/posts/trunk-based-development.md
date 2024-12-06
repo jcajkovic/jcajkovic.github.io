@@ -1,10 +1,10 @@
 ---
 title: "How Trunk Development Powers Continuous Delivery for Platform Engineers"
-date: 2024-12-06T06:30:00+00:00
+date: 2024-12-06T05:30:00+00:00
 # weight: 1
 # aliases: ["/first"]
 tags: ["ai"]
-author: "Jozef Cajkovic, OpenAI ChatGPT"
+author: ["Jozef Cajkovic", "OpenAI ChatGPT"]
 # author: ["Me", "You"] # multiple authors
 showToc: true
 TocOpen: false
